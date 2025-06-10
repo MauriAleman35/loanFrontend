@@ -1,0 +1,93 @@
+<div class="mb-6">
+  <form [formGroup]="filterForm" class="flex flex-col gap-4">
+    <!-- Chips de estado con contadores -->
+    <div class="flex flex-wrap gap-2">
+      <button 
+        type="button"
+        class="px-4 py-2 rounded-full text-sm transition-all flex items-center gap-2"
+        [ngClass]="filterForm.get('status')?.value === 'todas' ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'"
+        (click)="setStatusFilter('todas')">
+        <span>Todas</span>
+        <span class="px-1.5 py-0.5 rounded-full bg-white text-blue-600 text-xs font-medium">
+          {{ offerCounts.total }}
+        </span>
+      </button>
+      
+      <button 
+        type="button"
+        class="px-4 py-2 rounded-full text-sm transition-all flex items-center gap-2"
+        [ngClass]="filterForm.get('status')?.value === 'aceptada' ? 'bg-green-500 text-white' : 'bg-green-50 text-green-600 hover:bg-green-100'"
+        (click)="setStatusFilter('aceptada')">
+        <span>Aceptadas</span>
+        <span class="px-1.5 py-0.5 rounded-full bg-white text-green-600 text-xs font-medium">
+          {{ offerCounts.aceptada }}
+        </span>
+      </button>
+      
+      <button 
+        type="button"
+        class="px-4 py-2 rounded-full text-sm transition-all flex items-center gap-2"
+        [ngClass]="filterForm.get('status')?.value === 'rechazada' ? 'bg-red-500 text-white' : 'bg-red-50 text-red-600 hover:bg-red-100'"
+        (click)="setStatusFilter('rechazada')">
+        <span>Rechazadas</span>
+        <span class="px-1.5 py-0.5 rounded-full bg-white text-red-600 text-xs font-medium">
+          {{ offerCounts.rechazada }}
+        </span>
+      </button>
+      
+      <button 
+        type="button"
+        class="px-4 py-2 rounded-full text-sm transition-all flex items-center gap-2"
+        [ngClass]="filterForm.get('status')?.value === 'pendiente' ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'"
+        (click)="setStatusFilter('pendiente')">
+        <span>Pendientes</span>
+        <span class="px-1.5 py-0.5 rounded-full bg-white text-amber-600 text-xs font-medium">
+          {{ offerCounts.pendiente }}
+        </span>
+      </button>
+    </div>
+    
+    <div class="flex flex-wrap gap-4">
+      <!-- Búsqueda general -->
+      <mat-form-field appearance="outline" class="flex-grow min-w-[250px]">
+        <mat-label>Buscar</mat-label>
+        <input matInput formControlName="searchTerm" placeholder="Nombre, ID, etc.">
+        <mat-icon matPrefix class="text-gray-400">search</mat-icon>
+        <button 
+          *ngIf="filterForm.get('searchTerm')?.value" 
+          matSuffix 
+          mat-icon-button 
+          aria-label="Clear" 
+          (click)="filterForm.get('searchTerm')?.setValue('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+      
+      <!-- Rango de fechas -->
+      <mat-form-field appearance="outline">
+        <mat-label>Desde</mat-label>
+        <input matInput [matDatepicker]="pickerFrom" formControlName="dateFrom">
+        <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+        <mat-datepicker #pickerFrom></mat-datepicker>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+        <mat-label>Hasta</mat-label>
+        <input matInput [matDatepicker]="pickerTo" formControlName="dateTo">
+        <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+        <mat-datepicker #pickerTo></mat-datepicker>
+      </mat-form-field>
+      
+      <!-- Botón de reinicio -->
+      <button 
+        type="button" 
+        mat-stroked-button 
+        color="warn" 
+        class="h-[56px]" 
+        (click)="resetFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpiar filtros
+      </button>
+    </div>
+  </form>
+</div>

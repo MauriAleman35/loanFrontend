@@ -1,0 +1,17 @@
+/* Estilos para el footer */
+footer {
+    background-color: #fff8ec;  /* Fondo del footer */
+  }
+  
+  footer h3, footer h4 {
+    color: #d4a017;  /* Color de los títulos */
+  }
+  
+  footer p, footer a {
+    color: #a58d65;  /* Color de texto */
+  }
+  
+  footer a:hover {
+    color: #d4a017;  /* Hover en los enlaces */
+  }
+  

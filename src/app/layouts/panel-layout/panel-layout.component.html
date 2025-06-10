@@ -1,0 +1,174 @@
+<!-- panel-layout.component.html -->
+<div class="panel-layout">
+  <!-- Sidebar para escritorio -->
+  <aside class="sidebar"
+    [ngClass]="{
+      'collapsed': sidebarCollapsed && !isMobile,
+      'mobile': isMobile,
+      'mobile-open': mobileSidebarOpen && isMobile
+    }"
+  >
+    <!-- Logo y toggle -->
+    <div class="sidebar-header">
+      <div class="logo-container">
+        <h1 *ngIf="!sidebarCollapsed || (isMobile && mobileSidebarOpen)" class="text-xl font-bold text-blue-600">ERP Loan</h1>
+        <h1 *ngIf="sidebarCollapsed && !isMobile" class="text-xl font-bold text-blue-600">EL</h1>
+      </div>
+      <button *ngIf="!isMobile" class="toggle-btn" (click)="toggleSidebar()" [matTooltip]="sidebarCollapsed ? 'Expandir' : 'Colapsar'" matTooltipPosition="right">
+        <mat-icon>{{ sidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      </button>
+      <button *ngIf="isMobile && mobileSidebarOpen" class="close-btn" (click)="closeMobileSidebar()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Info usuario -->
+    <div class="user-info" *ngIf="!sidebarCollapsed || (isMobile && mobileSidebarOpen)">
+      <div class="user-avatar" [style.background-color]="getAvatarColor(userProfile?.name || '')">
+        {{ getInitials(userProfile?.name || '', userProfile?.lastName || '') }}
+      </div>
+      <div class="user-details">
+        <h3 class="user-name">{{ fullName }}</h3>
+        <p class="user-type">{{ userTypeLabel }}</p>
+      </div>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="sidebar-nav">
+      <ul>
+        <li *ngFor="let item of menuItems">
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            class="nav-item"
+            [matTooltip]="sidebarCollapsed && !isMobile ? item.label : ''"
+            matTooltipPosition="right"
+            (click)="isMobile ? closeMobileSidebar() : null"
+          >
+            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+            <span class="nav-label" *ngIf="!sidebarCollapsed || (isMobile && mobileSidebarOpen)">
+              {{ item.label }}
+            </span>
+            <span *ngIf="item.badge && (!sidebarCollapsed || (isMobile && mobileSidebarOpen))" class="nav-badge">
+              {{ item.badge }}
+            </span>
+            <span *ngIf="item.badge && sidebarCollapsed && !isMobile" class="nav-badge-collapsed">
+              {{ item.badge }}
+            </span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <button class="footer-btn logout" (click)="logout()" [matTooltip]="sidebarCollapsed && !isMobile ? 'Cerrar sesión' : ''" matTooltipPosition="right">
+        <mat-icon>logout</mat-icon>
+        <span *ngIf="!sidebarCollapsed || (isMobile && mobileSidebarOpen)">Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Overlay -->
+  <div *ngIf="isMobile && mobileSidebarOpen" class="sidebar-overlay" (click)="closeMobileSidebar()"></div>
+
+  <!-- Contenido principal -->
+  <main class="main-content" [ngClass]="{'sidebar-collapsed': sidebarCollapsed && !isMobile}">
+    <!-- Navbar -->
+    <header class="top-navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle" (click)="toggleSidebar()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <h1 class="page-title">ERP Loan</h1>
+      </div>
+
+      <div class="navbar-right">
+        <!-- Notificaciones -->
+        <button class="navbar-btn" [matMenuTriggerFor]="notificationsMenu">
+          <mat-icon [matBadge]="3" matBadgeColor="warn">notifications</mat-icon>
+        </button>
+        <mat-menu #notificationsMenu="matMenu" class="notifications-menu">
+          <div class="notifications-header">
+            <h3>Notificaciones</h3>
+            <button mat-button color="primary">Marcar todas como leídas</button>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="notifications-list">
+            <a class="notification-item unread">
+              <div class="notification-icon loan-approved">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+              <div class="notification-content">
+                <p class="notification-title">Préstamo aprobado</p>
+                <p class="notification-text">El préstamo #12345 ha sido aprobado</p>
+                <p class="notification-time">Hace 5 minutos</p>
+              </div>
+            </a>
+            <a class="notification-item unread">
+              <div class="notification-icon payment-received">
+                <mat-icon>payments</mat-icon>
+              </div>
+              <div class="notification-content">
+                <p class="notification-title">Pago recibido</p>
+                <p class="notification-text">Has recibido un pago de $500</p>
+                <p class="notification-time">Hace 2 horas</p>
+              </div>
+            </a>
+            <a class="notification-item">
+              <div class="notification-icon system">
+                <mat-icon>system_update</mat-icon>
+              </div>
+              <div class="notification-content">
+                <p class="notification-title">Actualización del sistema</p>
+                <p class="notification-text">Se ha actualizado el sistema a la versión 2.1.0</p>
+                <p class="notification-time">Ayer</p>
+              </div>
+            </a>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="notifications-footer">
+            <button mat-button color="primary">Ver todas</button>
+          </div>
+        </mat-menu>
+
+        <!-- Perfil -->
+        <button class="navbar-btn profile-btn" [matMenuTriggerFor]="profileMenu">
+          <div class="profile-avatar" [style.background-color]="getAvatarColor(userProfile?.name || '')">
+            {{ getInitials(userProfile?.name || '', userProfile?.lastName || '') }}
+          </div>
+        </button>
+        <mat-menu #profileMenu="matMenu">
+          <div class="profile-header">
+            <div class="profile-avatar-large" [style.background-color]="getAvatarColor(userProfile?.name || '')">
+              {{ getInitials(userProfile?.name || '', userProfile?.lastName || '') }}
+            </div>
+            <div class="profile-info">
+              <h3>{{ fullName }}</h3>
+              <p>{{ userTypeLabel }}</p>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+          <button mat-menu-item routerLink="/panel/profile">
+            <mat-icon>person</mat-icon>
+            <span>Mi perfil</span>
+          </button>
+          <button mat-menu-item routerLink="/panel/settings">
+            <mat-icon>settings</mat-icon>
+            <span>Configuración</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Cerrar sesión</span>
+          </button>
+        </mat-menu>
+      </div>
+    </header>
+
+    <!-- Router outlet -->
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,24 @@
+/* Estilos personalizados para el componente de login */
+
+:host {
+    display: block;
+  }
+  
+  /* Estilos para los inputs */
+  input:focus {
+    outline: none;
+  }
+  
+  .focus-within\:border-\[\#d4a017\]:focus-within {
+    border-color: #d4a017;
+  }
+  
+  /* Animación para el botón */
+  button[type="submit"]:not([disabled]):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(212, 160, 23, 0.1);
+  }
+  
+  button[type="submit"]:not([disabled]):active {
+    transform: translateY(0);
+  }

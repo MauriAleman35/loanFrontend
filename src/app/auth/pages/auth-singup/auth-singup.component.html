@@ -1,0 +1,243 @@
+<div class="min-h-screen flex items-center justify-center bg-[#f8f9fb] py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full">
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-blue-600">ERP Loan</h1>
+      <div class="mt-2">
+        <div class="h-1 w-16 bg-blue-800 mx-auto rounded-full"></div>
+      </div>
+    </div>
+    
+    <!-- Tarjeta del formulario -->
+    <div class="bg-white shadow-md rounded-lg p-8">
+      <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">Registro de Prestamista</h2>
+      <p class="text-center text-gray-600 mb-6">Crea tu cuenta para administrar préstamos</p>
+      
+      <!-- Indicador de pasos -->
+      <div class="flex items-center justify-center mb-8">
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold">
+            1
+          </div>
+          <span class="ml-2 text-sm font-medium" [ngClass]="currentStep === 1 ? 'text-gray-800' : 'text-gray-500'">
+            Información personal
+          </span>
+        </div>
+        <div class="w-16 h-px bg-gray-300 mx-2"></div>
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-8 h-8 rounded-full font-bold" 
+               [ngClass]="currentStep === 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'">
+            2
+          </div>
+          <span class="ml-2 text-sm font-medium" [ngClass]="currentStep === 2 ? 'text-gray-800' : 'text-gray-500'">
+            Cuenta
+          </span>
+        </div>
+      </div>
+      
+      <!-- Paso 1: Información personal -->
+      <div *ngIf="currentStep === 1">
+        <form [formGroup]="personalInfoForm" (ngSubmit)="nextStep()" class="space-y-6">
+          <!-- Nombre -->
+          <div class="relative">
+            <div class="flex border-b border-gray-300 focus-within:border-blue-600">
+              <span class="flex items-center px-3 text-blue-600">
+                <mat-icon>person</mat-icon>
+              </span>
+              <input 
+                type="text" 
+                formControlName="name" 
+                class="w-full py-3 outline-none text-gray-700 placeholder-gray-500"
+                placeholder="Nombre*"
+              >
+            </div>
+            <div *ngIf="personalInfoForm.get('name')?.touched && personalInfoForm.get('name')?.invalid" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage(personalInfoForm, 'name') }}
+            </div>
+          </div>
+          
+          <!-- Apellido -->
+          <div class="relative">
+            <div class="flex border-b border-gray-300 focus-within:border-blue-600">
+              <span class="flex items-center px-3 text-blue-600">
+                <mat-icon>person</mat-icon>
+              </span>
+              <input 
+                type="text" 
+                formControlName="lastName" 
+                class="w-full py-3 outline-none text-gray-700 placeholder-gray-500"
+                placeholder="Apellido*"
+              >
+            </div>
+            <div *ngIf="personalInfoForm.get('lastName')?.touched && personalInfoForm.get('lastName')?.invalid" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage(personalInfoForm, 'lastName') }}
+            </div>
+          </div>
+          
+          <!-- Teléfono -->
+          <div class="relative">
+            <div class="flex border-b border-gray-300 focus-within:border-blue-600">
+              <span class="flex items-center px-3 text-blue-600">
+                <mat-icon>phone</mat-icon>
+              </span>
+              <input 
+                type="tel" 
+                formControlName="phone" 
+                class="w-full py-3 outline-none text-gray-700 placeholder-gray-500"
+                placeholder="Teléfono*"
+              >
+            </div>
+            <div *ngIf="personalInfoForm.get('phone')?.touched && personalInfoForm.get('phone')?.invalid" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage(personalInfoForm, 'phone') }}
+            </div>
+          </div>
+          
+          <!-- CI/NIT -->
+          <div class="relative">
+            <div class="flex border-b border-gray-300 focus-within:border-blue-600">
+              <span class="flex items-center px-3 text-blue-600">
+                <mat-icon>badge</mat-icon>
+              </span>
+              <input 
+                type="text" 
+                formControlName="ci" 
+                class="w-full py-3 outline-none text-gray-700 placeholder-gray-500"
+                placeholder="CI/NIT*"
+              >
+            </div>
+            <div *ngIf="personalInfoForm.get('ci')?.touched && personalInfoForm.get('ci')?.invalid" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage(personalInfoForm, 'ci') }}
+            </div>
+          </div>
+          
+          <!-- Botón para continuar -->
+          <button 
+            type="submit" 
+            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-300"
+          >
+            Continuar
+          </button>
+        </form>
+      </div>
+      
+      <!-- Paso 2: Información de la cuenta -->
+      <div *ngIf="currentStep === 2">
+        <form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <!-- Correo electrónico -->
+          <div class="relative">
+            <div class="flex border-b border-gray-300 focus-within:border-blue-600">
+              <span class="flex items-center px-3 text-blue-600">
+                <mat-icon>email</mat-icon>
+              </span>
+              <input 
+                type="email" 
+                formControlName="email" 
+                class="w-full py-3 outline-none text-gray-700 placeholder-gray-500"
+                placeholder="Correo electrónico*"
+              >
+            </div>
+            <div *ngIf="accountForm.get('email')?.touched && accountForm.get('email')?.invalid" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage(accountForm, 'email') }}
+            </div>
+          </div>
+          
+          <!-- Contraseña -->
+          <div class="relative">
+            <div class="flex border-b border-gray-300 focus-within:border-blue-600">
+              <span class="flex items-center px-3 text-blue-600">
+                <mat-icon>lock</mat-icon>
+              </span>
+              <input 
+                [type]="hidePassword ? 'password' : 'text'" 
+                formControlName="password" 
+                class="w-full py-3 outline-none text-gray-700 placeholder-gray-500"
+                placeholder="Contraseña*"
+              >
+              <button 
+                type="button" 
+                class="px-3 text-gray-500 focus:outline-none" 
+                (click)="togglePasswordVisibility('password')"
+              >
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <div *ngIf="accountForm.get('password')?.touched && accountForm.get('password')?.invalid" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage(accountForm, 'password') }}
+            </div>
+          </div>
+          
+          <!-- Confirmar contraseña -->
+          <div class="relative">
+            <div class="flex border-b border-gray-300 focus-within:border-blue-600">
+              <span class="flex items-center px-3 text-blue-600">
+                <mat-icon>lock</mat-icon>
+              </span>
+              <input 
+                [type]="hideConfirmPassword ? 'password' : 'text'" 
+                formControlName="confirmPassword" 
+                class="w-full py-3 outline-none text-gray-700 placeholder-gray-500"
+                placeholder="Confirmar contraseña*"
+              >
+              <button 
+                type="button" 
+                class="px-3 text-gray-500 focus:outline-none" 
+                (click)="togglePasswordVisibility('confirmPassword')"
+              >
+                <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <div *ngIf="accountForm.get('confirmPassword')?.touched && (accountForm.get('confirmPassword')?.invalid || accountForm.hasError('passwordMismatch'))" class="text-red-500 text-sm mt-1">
+              {{ getErrorMessage(accountForm, 'confirmPassword') }}
+            </div>
+          </div>
+          
+          <!-- Términos y condiciones -->
+          <div class="flex items-start">
+            <input 
+              type="checkbox" 
+              id="terms" 
+              formControlName="terms" 
+              class="mt-1 mr-2 h-4 w-4 accent-blue-600"
+            >
+            <label for="terms" class="text-sm text-gray-700">
+              Acepto los <a href="#" class="text-blue-600 hover:text-blue-800">términos y condiciones</a> y la <a href="#" class="text-blue-600 hover:text-blue-800">política de privacidad</a>
+            </label>
+          </div>
+          <div *ngIf="accountForm.get('terms')?.touched && accountForm.get('terms')?.invalid" class="text-red-500 text-sm mt-1">
+            Debes aceptar los términos y condiciones
+          </div>
+          
+          <!-- Botones de navegación -->
+          <div class="flex space-x-4">
+            <button 
+              type="button" 
+              class="flex-1 py-3 px-4 border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-300"
+              (click)="prevStep()"
+            >
+              Atrás
+            </button>
+            
+            <button 
+              type="submit" 
+              class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-300 flex items-center justify-center"
+              [disabled]="accountForm.invalid || isLoading"
+            >
+              <span *ngIf="!isLoading">Crear cuenta</span>
+              <div *ngIf="isLoading" class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Enlace para iniciar sesión -->
+      <div class="mt-8 text-center">
+        <p class="text-gray-600">
+          ¿Ya tienes una cuenta?
+          <a routerLink="/auth/login" class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-300">
+            Inicia sesión
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,286 @@
+
+<div class="p-4 bg-gray-50 min-h-screen">
+  <!-- Header con título y botón de solicitudes -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Préstamos Activos</h1>
+      <p class="text-gray-600">Administra tus préstamos y realiza seguimiento de pagos</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button mat-flat-button class="bg-cyan-500 hover:bg-cyan-600 text-white rounded-full" (click)="goToRequests()">
+        <span>Ver Solicitudes</span>
+        <mat-icon class="ml-1">arrow_forward</mat-icon>
+      </button>
+      
+      <!-- Toggle para cambio de vista -->
+      <mat-button-toggle-group class="view-toggle shadow-sm" [(value)]="viewMode" (change)="toggleView(viewMode)">
+        <mat-button-toggle value="cards" matTooltip="Vista de tarjetas">
+          <mat-icon>grid_view</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="table" matTooltip="Vista de tabla">
+          <mat-icon>view_list</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  <div *ngIf="isLoading" class="flex flex-col items-center justify-center p-12">
+    <mat-progress-bar mode="indeterminate" class="w-64 mb-4"></mat-progress-bar>
+    <p class="text-gray-600">Cargando préstamos...</p>
+  </div>
+
+  <!-- Estado de error -->
+  <div *ngIf="error && !isLoading" class="p-4 mb-6 bg-red-50 border border-red-200 rounded-lg">
+    <div class="flex items-center text-red-800">
+      <mat-icon class="mr-2">error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+  </div>
+
+  <!-- Sin préstamos -->
+  <div *ngIf="!isLoading && loans.length === 0" class="text-center p-12 bg-white rounded-lg shadow-sm">
+    <mat-icon class="text-6xl text-gray-300 mb-4">account_balance</mat-icon>
+    <h2 class="text-xl font-semibold text-gray-700 mb-2">No tienes préstamos activos</h2>
+    <p class="text-gray-600 mb-6">Comienza a invertir ofertando en solicitudes disponibles</p>
+    <button mat-flat-button class="bg-cyan-500 text-white" (click)="goToRequests()">
+      <mat-icon>search</mat-icon>
+      <span class="ml-1">Ver solicitudes disponibles</span>
+    </button>
+  </div>
+
+  <!-- Tarjeta de resumen -->
+  <mat-card *ngIf="!isLoading && loans.length > 0" class="mb-8 bg-gradient-to-r from-blue-500 to-cyan-500 shadow-md rounded-xl">
+    <div class="flex flex-col md:flex-row justify-between items-center p-5">
+      <div class="text-white">
+        <h2 class="text-xl font-semibold">Resumen de préstamos</h2>
+        <p class="mt-1 opacity-90">
+          <span class="font-semibold">{{ loans.length }}</span> préstamos activos en tu portafolio
+        </p>
+      </div>
+      <div class="mt-4 md:mt-0 text-center md:text-right">
+        <p class="text-3xl font-bold text-white">${{ getTotalAmount() | number:'1.2-2' }}</p>
+        <p class="text-white opacity-90">Capital prestado total</p>
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- VISTA EN TARJETAS -->
+  <div *ngIf="!isLoading && loans.length > 0 && viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let loan of loans" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+      <!-- Cabecera de la tarjeta -->
+      <div class="flex justify-between items-start p-4 bg-blue-50 border-b border-blue-100">
+        <div>
+          <h3 class="text-lg font-semibold text-blue-800">Préstamo #{{ loan.id }}</h3>
+          <span [class]="getStatusColor(loan.currentStatus)" class="inline-block text-xs font-bold px-2 py-1 rounded-full mt-1">
+            {{ getStatusLabel(loan.currentStatus) }}
+          </span>
+        </div>
+        <div class="flex items-center justify-center bg-white rounded-full h-10 w-10 shadow-sm">
+          <mat-icon class="text-blue-600">account_balance</mat-icon>
+        </div>
+      </div>
+      
+      <!-- Monto y detalles -->
+      <div class="p-5">
+        <div class="mb-4">
+          <p class="text-3xl font-bold text-blue-900">${{ loan.loanAmount | number:'1.2-2' }}</p>
+          <div class="flex items-center text-sm text-gray-600 mt-1">
+            <mat-icon class="text-sm mr-1 text-blue-500">percent</mat-icon>
+            <span>{{ loan.offer.interest }}% interés</span>
+            <span class="mx-2 text-blue-300">•</span>
+            <span>{{ loan.offer.loanTerm }} meses</span>
+          </div>
+        </div>
+        
+        <!-- Información del prestatario -->
+        <div class="mb-5 p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <p class="text-sm text-blue-500 font-medium">Prestatario</p>
+          <p class="font-medium text-gray-800">{{ loan.offer.solicitude.borrower.name }} {{ loan.offer.solicitude.borrower.lastName }}</p>
+          <div class="flex flex-wrap gap-x-4 text-sm text-gray-600 mt-1">
+            <div class="flex items-center">
+              <mat-icon class="text-sm mr-1 text-blue-400">credit_card</mat-icon>
+              <span>{{ loan.offer.solicitude.borrower.ci }}</span>
+            </div>
+            <div class="flex items-center">
+              <mat-icon class="text-sm mr-1 text-blue-400">phone</mat-icon>
+              <span>{{ loan.offer.solicitude.borrower.phone }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Barra de progreso -->
+        <div class="mb-5">
+          <div class="flex justify-between text-xs text-gray-600 mb-1">
+            <span>Progreso del préstamo</span>
+            <span>{{ calculateProgress(loan.startDate, loan.endDate) }}%</span>
+          </div>
+          <div class="w-full bg-gray-100 rounded-full h-2">
+            <div 
+              class="h-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500" 
+              [style.width.%]="calculateProgress(loan.startDate, loan.endDate)">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Fechas -->
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <p class="text-xs text-blue-500">Fecha Inicio</p>
+            <p class="font-medium text-gray-700">{{ formatDate(loan.startDate) }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-blue-500">Fecha Finalización</p>
+            <p class="font-medium text-gray-700">{{ formatDate(loan.endDate) }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Acciones -->
+      <div class="p-4 flex justify-between bg-gray-50 border-t">
+        <button mat-stroked-button class="border-blue-500 text-blue-600 hover:bg-blue-50 rounded-full" (click)="viewLoanDetails(loan.id)">
+          <mat-icon>visibility</mat-icon>
+          <span class="ml-1">Ver Detalles</span>
+        </button>
+        <button mat-flat-button class="bg-cyan-500 text-white hover:bg-cyan-600 rounded-full" (click)="viewLoanPayments(loan.id)">
+          <mat-icon>payments</mat-icon>
+          <span class="ml-1">Ver Pagos</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- VISTA EN TABLA -->
+  <div *ngIf="!isLoading && loans.length > 0 && viewMode === 'table'" 
+       class="bg-white rounded-lg shadow-sm border border-blue-100 overflow-hidden">
+    <div class="table-container">
+      <table mat-table [dataSource]="loans" matSort class="custom-table">
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+          <td mat-cell *matCellDef="let loan"> #{{ loan.id }} </td>
+        </ng-container>
+
+        <!-- Amount Column -->
+        <ng-container matColumnDef="loanAmount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto </th>
+          <td mat-cell *matCellDef="let loan" class="font-medium text-blue-900">
+            ${{ loan.loanAmount | number:'1.2-2' }}
+          </td>
+        </ng-container>
+
+        <!-- Borrower Column -->
+        <ng-container matColumnDef="borrower">
+          <th mat-header-cell *matHeaderCellDef> Prestatario </th>
+          <td mat-cell *matCellDef="let loan">
+            <p class="font-medium text-gray-800">{{ loan.offer.solicitude.borrower.name }} {{ loan.offer.solicitude.borrower.lastName }}</p>
+            <p class="text-gray-500 text-sm">{{ loan.offer.solicitude.borrower.ci }}</p>
+          </td>
+        </ng-container>
+
+        <!-- Interest Rate Column -->
+        <ng-container matColumnDef="interestRate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Interés </th>
+          <td mat-cell *matCellDef="let loan" class="font-medium text-cyan-700">
+            {{ loan.offer.interest }}%
+          </td>
+        </ng-container>
+
+        <!-- Term Column -->
+        <ng-container matColumnDef="term">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Plazo </th>
+          <td mat-cell *matCellDef="let loan">
+            {{ loan.offer.loanTerm }} meses
+          </td>
+        </ng-container>
+
+        <!-- Start Date Column -->
+        <ng-container matColumnDef="startDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha Inicio </th>
+          <td mat-cell *matCellDef="let loan" class="text-gray-800">
+            {{ formatDate(loan.startDate) }}
+          </td>
+        </ng-container>
+
+        <!-- End Date Column -->
+        <ng-container matColumnDef="endDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha Fin </th>
+          <td mat-cell *matCellDef="let loan" class="text-gray-800">
+            {{ formatDate(loan.endDate) }}
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef> Estado </th>
+          <td mat-cell *matCellDef="let loan">
+            <span [class]="getStatusColor(loan.currentStatus)" class="text-xs font-medium px-3 py-1 rounded-full">
+              {{ getStatusLabel(loan.currentStatus) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Progress Column -->
+        <ng-container matColumnDef="progress">
+          <th mat-header-cell *matHeaderCellDef> Progreso </th>
+          <td mat-cell *matCellDef="let loan" class="w-36">
+            <div class="w-full bg-gray-100 rounded-full h-2.5 mb-1">
+              <div class="h-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500" 
+                   [style.width.%]="calculateProgress(loan.startDate, loan.endDate)"></div>
+            </div>
+            <div class="text-xs text-cyan-600 font-medium">{{ calculateProgress(loan.startDate, loan.endDate) }}%</div>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="text-right"> Acciones </th>
+          <td mat-cell *matCellDef="let loan" class="text-right">
+            <button mat-icon-button class="text-blue-600" matTooltip="Ver Detalles" (click)="viewLoanDetails(loan.id)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button class="text-cyan-500" matTooltip="Ver Pagos" (click)="viewLoanPayments(loan.id)">
+              <mat-icon>payments</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+
+    <mat-paginator class="custom-paginator"
+      [length]="totalItems"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="currentPage"
+      (page)="handlePageEvent($event)"
+      showFirstLastButtons
+      aria-label="Seleccionar página">
+    </mat-paginator>
+  </div>
+
+  <!-- Paginación para vista de tarjetas -->
+  <div *ngIf="!isLoading && loans.length > 0 && viewMode === 'cards'" class="mt-6">
+    <mat-paginator class="custom-paginator bg-white rounded-lg shadow-sm"
+      [length]="totalItems"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="currentPage"
+      (page)="handlePageEvent($event)"
+      showFirstLastButtons
+      aria-label="Seleccionar página">
+    </mat-paginator>
+  </div>
+  
+  <!-- Botón para ver más solicitudes -->
+  <div *ngIf="!isLoading && loans.length > 0" class="mt-12 text-center bg-blue-50 p-6 rounded-xl border border-blue-100 shadow-sm">
+    <h3 class="text-lg font-medium text-blue-800 mb-2">¿Quieres aumentar tu cartera de inversiones?</h3>
+    <p class="mb-4 text-blue-600">Explora nuevas oportunidades de préstamo y aumenta tus ganancias por intereses</p>
+    <button mat-flat-button class="bg-cyan-500 hover:bg-cyan-600 text-white px-6 rounded-full" (click)="goToRequests()">
+      <mat-icon>search</mat-icon>
+      <span class="ml-1">Ver solicitudes disponibles</span>
+    </button>
+  </div>
+</div>

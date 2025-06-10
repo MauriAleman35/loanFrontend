@@ -1,0 +1,96 @@
+<!-- src/app/panel/requests/create-offer-dialog/create-offer-dialog.component.html -->
+<div class="relative">
+  <!-- Loader -->
+  <div *ngIf="isLoading" class="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
+    <mat-progress-bar mode="indeterminate" class="w-64"></mat-progress-bar>
+  </div>
+
+  <div class="p-2">
+    <!-- Cabecera del diálogo -->
+    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 -m-2 p-6 mb-4 text-white">
+      <h2 class="text-xl font-bold mb-1">Enviar oferta de préstamo</h2>
+      <p class="opacity-90">Envía una propuesta al solicitante</p>
+      <div class="flex items-center mt-3 bg-white bg-opacity-20 px-3 py-2 rounded-lg">
+        <div>
+          <p class="text-sm">Monto solicitado</p>
+          <p class="text-2xl font-bold">${{ data.solicitude.loanAmount | number:'1.2-2' }}</p>
+        </div>
+        <div class="ml-auto text-right">
+          <p class="text-sm">Solicitante</p>
+          <p class="font-medium">{{ data.solicitude.borrower.name }} {{ data.solicitude.borrower.lastName }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario de oferta -->
+    <form [formGroup]="offerForm" (ngSubmit)="onSubmit()" class="mt-4">
+      <!-- Interés -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tasa de interés (%)</label>
+        <mat-slider
+          min="1"
+          max="50"
+          step="0.5"
+          showTickMarks
+          discrete
+          class="w-full"
+        >
+          <input matSliderThumb formControlName="interest">
+        </mat-slider>
+        <div class="flex justify-between text-sm text-gray-500">
+          <span>1%</span>
+          <span class="text-blue-600 font-medium">{{ offerForm.value.interest }}%</span>
+          <span>50%</span>
+        </div>
+        <mat-error *ngIf="offerForm.get('interest')?.hasError('required')">
+          El interés es obligatorio
+        </mat-error>
+      </div>
+
+      <!-- Plazo del préstamo -->
+      <div class="mb-6">
+        <mat-form-field class="w-full">
+          <mat-label>Duración del préstamo (meses)</mat-label>
+          <mat-select formControlName="loanTerm">
+            <mat-option *ngFor="let term of loanTermOptions" [value]="term">
+              {{ term }} meses
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Estimaciones -->
+      <div class="p-4 bg-blue-50 rounded-lg border border-blue-100 mb-6">
+        <h3 class="text-blue-800 font-medium mb-3">Estimaciones de pago</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm text-blue-600">Cuota mensual estimada</p>
+            <p class="text-xl font-bold text-blue-900">${{ estimatedMonthlyPayment | number:'1.2-2' }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-blue-600">Total a devolver</p>
+            <p class="text-xl font-bold text-blue-900">${{ estimatedTotalRepayment | number:'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="flex justify-end space-x-3">
+        <button 
+          mat-stroked-button 
+          type="button" 
+          (click)="onCancel()"
+          [disabled]="isLoading">
+          Cancelar
+        </button>
+        <button 
+          mat-flat-button 
+          type="submit" 
+          class="bg-blue-500 text-white"
+          [disabled]="offerForm.invalid || isLoading">
+          Enviar Oferta
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,1 +1,66 @@
 /* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.custom-table .mat-header-cell {
+  background-color: #e0f2fe !important; /* azul muy claro */
+  color: #0369a1 !important; /* azul oscuro */
+  font-weight: 600;
+  padding: 16px;
+  border-bottom: 1px solid #bfdbfe;
+}
+
+.custom-table .mat-cell {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.custom-table .mat-row:hover {
+  background-color: #f0f9ff !important; /* azul más claro al hover */
+}
+
+.custom-table .mat-row:last-child .mat-cell {
+  border-bottom: none;
+}
+
+.custom-paginator {
+  background-color: #f0f9ff !important; /* fondo azul muy claro */
+  border-top: 1px solid #e0f2fe;
+  border-radius: 0 0 8px 8px;
+}
+
+.custom-paginator .mat-mdc-icon-button {
+  color: #0ea5e9 !important; /* botones de paginación color cyan */
+}
+
+.custom-paginator .mat-mdc-select-value,
+.custom-paginator .mat-mdc-select-arrow {
+  color: #0369a1 !important;
+}
+
+.custom-paginator .mat-mdc-paginator-range-label {
+  color: #0369a1;
+}
+
+/* Estilo para filas alternadas (opcional) */
+.custom-table .mat-row:nth-child(even) {
+  background-color: #fafeff;
+}

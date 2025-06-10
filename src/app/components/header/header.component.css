@@ -1,0 +1,19 @@
+/* Estilos para el header */
+header {
+    background-color: #fff8ec;  /* Fondo del header */
+  }
+  
+  nav a {
+    transition: all 0.3s ease;  /* Transición suave para el hover */
+  }
+  
+  button {
+    transition: all 0.3s ease;  /* Transición suave para los botones */
+  }
+  
+  button:hover {
+    background-color: #a58d65; /* Cambio de color al pasar el mouse */
+  }
+ a:hover {
+  color: #d4a017;  /* Tono más brillante en los enlaces cuando son seleccionados */
+} 

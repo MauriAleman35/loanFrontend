@@ -1,0 +1,70 @@
+<header class="sticky top-0 z-50 w-full border-b border-blue-200/20 bg-white shadow-sm">
+  <div class="container flex h-16 items-center px-6">
+    <!-- Logo a la izquierda -->
+    <div class="flex-shrink-0 pr-16">
+      <a routerLink="/" class="flex items-center gap-2 pl-2">
+        <span class="text-2xl font-bold text-blue-600">LoanSoft</span>
+      </a>
+    </div>
+
+    <!-- Navegación centrada (para desktop) -->
+    <nav class="hidden md:flex flex-grow justify-center">
+      <div class="flex flex-row space-x-8">
+        <a 
+          *ngFor="let tab of tabs" 
+          [routerLink]="tab.route" 
+          routerLinkActive="text-blue-600" 
+          class="text-gray-700 font-medium"
+        >
+          {{ tab.label }}
+        </a>
+      </div>
+    </nav>
+
+    <!-- Botones de login a la derecha -->
+    <div class="flex-shrink-3 ml-auto">
+      <button 
+        mat-stroked-button
+        (click)="openLogin()"
+        *ngIf="authService.isLoggedIn() === false"
+        class="hidden md:flex border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-1 text-sm"  
+      >
+        Iniciar Sesión
+      </button>
+    </div>
+    <!-- Aparece cuando esta logeado -->
+    <div *ngIf="authService.isLoggedIn()">
+      <!-- avatar + dropdown -->
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu" class="bg-white">
+        <button mat-menu-item (click)="openAccount()">
+          <mat-icon>manage_accounts</mat-icon>
+          <span>Mi cuenta</span>
+        </button>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar sesión</span>
+        </button>
+      </mat-menu>
+    </div>  
+    <!-- Menú móvil (hamburger) -->
+    <div class="md:hidden ml-4" (click)="toggleMobileMenu()">
+      <mat-icon>menu</mat-icon>
+    </div>
+  </div>
+
+  <!-- Menú móvil desplegable -->
+  <div *ngIf="isMobileMenuOpen" class="md:hidden flex flex-col items-center gap-4 bg-white p-4">
+    <a 
+      *ngFor="let tab of tabs" 
+      [routerLink]="tab.route" 
+      routerLinkActive="text-blue-600" 
+      class="text-gray-700 font-medium"
+      (click)="toggleMobileMenu()"
+    >
+      {{ tab.label }}
+    </a>
+  </div>  
+</header>

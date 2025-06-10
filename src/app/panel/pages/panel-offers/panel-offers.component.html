@@ -1,0 +1,133 @@
+<div class="bg-white rounded-lg shadow-sm p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Mis Ofertas</h1>
+    
+    <div class="flex space-x-2">
+      <button mat-flat-button class="bg-blue-100 text-blue-700" (click)="loadOffers()">
+        <mat-icon>refresh</mat-icon>
+        Actualizar
+      </button>
+      <button mat-flat-button class="bg-green-100 text-green-700" (click)="exportToCSV()">
+        <mat-icon>download</mat-icon>
+        Exportar CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <app-offers-filter 
+    [offerCounts]="offerCounts"
+    (filterChange)="onFilterChange($event)"
+  ></app-offers-filter>
+
+  <!-- Estado de carga -->
+  <div *ngIf="loading" class="flex justify-center my-12">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="p-4 bg-red-50 border border-red-100 rounded-lg text-center text-red-600 my-6">
+    <p>{{ error }}</p>
+    <button mat-button color="warn" (click)="loadOffers()">Reintentar</button>
+  </div>
+
+  <!-- Tabla de ofertas -->
+  <div *ngIf="!loading && !error" class="overflow-x-auto">
+    <div *ngIf="filteredOffers.length === 0" class="text-center py-8 text-gray-500">
+      <mat-icon class="text-5xl text-gray-300">search_off</mat-icon>
+      <p class="mt-2">No se encontraron ofertas con los filtros seleccionados</p>
+    </div>
+
+    <table *ngIf="filteredOffers.length > 0" mat-table [dataSource]="displayedOffers" matSort (matSortChange)="onSortChange($event)" class="w-full">
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50"> ID </th>
+        <td mat-cell *matCellDef="let offer" class="text-gray-600 text-sm"> #{{ offer.id }} </td>
+      </ng-container>
+
+      <!-- Borrower Column -->
+      <ng-container matColumnDef="borrower">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50"> Prestatario </th>
+        <td mat-cell *matCellDef="let offer">
+          <div>
+            <p class="font-medium text-gray-800">{{ offer.solicitude.borrower.name }} {{ offer.solicitude.borrower.lastName }}</p>
+            <p class="text-xs text-gray-500">{{ offer.solicitude.borrower.email }}</p>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Loan Amount Column -->
+      <ng-container matColumnDef="loanAmount">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50"> Monto </th>
+        <td mat-cell *matCellDef="let offer" class="text-gray-700">
+          <span class="font-medium">${{ offer.solicitude.loanAmount | number:'1.2-2' }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Interest Column -->
+      <ng-container matColumnDef="interest">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50"> Interés </th>
+        <td mat-cell *matCellDef="let offer" class="text-gray-700">
+          {{ offer.interest | number:'1.1-1' }}%
+        </td>
+      </ng-container>
+
+      <!-- Term Column -->
+      <ng-container matColumnDef="term">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50"> Plazo </th>
+        <td mat-cell *matCellDef="let offer" class="text-gray-700">
+          {{ offer.loanTerm }} meses
+        </td>
+      </ng-container>
+
+      <!-- Monthly Payment Column -->
+      <ng-container matColumnDef="monthlyPayment">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50"> Cuota </th>
+        <td mat-cell *matCellDef="let offer" class="text-gray-700">
+          ${{ offer.monthlyPayment | number:'1.2-2' }}
+        </td>
+      </ng-container>
+
+      <!-- Total Payment Column -->
+      <ng-container matColumnDef="totalRepayment">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50"> Total </th>
+        <td mat-cell *matCellDef="let offer" class="text-gray-700">
+          <span class="font-medium">${{ offer.totalRepaymentAmount | number:'1.2-2' }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-gray-50"> Estado </th>
+        <td mat-cell *matCellDef="let offer">
+          <span class="px-2 py-1 text-xs rounded-full border" [ngClass]="getStatusClass(offer.status)">
+            {{ offer.status | titlecase }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="bg-gray-50"> Acciones </th>
+        <td mat-cell *matCellDef="let offer">
+          <button mat-icon-button color="primary" (click)="viewOfferDetails(offer.id)" matTooltip="Ver detalles">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Header and Row Definitions -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-blue-50 cursor-pointer"></tr>
+    </table>
+
+    <!-- Paginación -->
+    <mat-paginator 
+      *ngIf="filteredOffers.length > 0"
+      [length]="totalItems" 
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+</div>
